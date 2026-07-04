@@ -130,6 +130,15 @@
       background: var(--sage);
     }
 
+    .nav-toggle {
+      display: none;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 20px;
+    }
+
     /* HERO */
     .hero {
       height: 100vh;
@@ -1068,9 +1077,36 @@
         padding: 16px 20px;
       }
 
-      .nav-links,
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(247, 244, 239, 0.98);
+        border-bottom: 1px solid var(--border);
+        padding: 24px;
+        gap: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
       .nav-hotel {
         display: none;
+      }
+
+      .nav-toggle {
+        display: block;
+        background: none;
+        border: none;
+        color: var(--deep);
+        cursor: pointer;
+        padding: 4px;
+        margin-left: 8px;
       }
 
       .promise {
@@ -1114,7 +1150,14 @@
 
       .hotel-cta-row {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        width: 100%;
+        gap: 12px;
+      }
+
+      .hotel-cta-row a {
+        width: 100%;
+        text-align: center;
       }
 
       footer {
@@ -1134,6 +1177,56 @@
         padding: 16px 20px;
       }
     }
+
+    @media(max-width:600px) {
+      .hero-content {
+        padding: 0 16px;
+      }
+
+      .hero-title {
+        font-size: clamp(32px, 8vw, 44px);
+        margin-bottom: 20px;
+      }
+
+      .hero-sub {
+        font-size: 14px;
+        margin-bottom: 30px;
+      }
+
+      .btn-primary, .btn-ghost {
+        display: block;
+        width: 100%;
+        margin-left: 0 !important;
+        margin-bottom: 12px;
+        text-align: center;
+        padding: 14px 20px;
+      }
+
+      .hotel-features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hotel-feature {
+        padding: 24px 20px;
+      }
+
+      .products-section,
+      .testimonials,
+      .hotel-section,
+      .cta-band {
+        padding: 48px 16px;
+      }
+
+      .cat-tab {
+        padding: 10px 18px;
+        font-size: 11px;
+      }
+
+      .form-row {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
   </style>
 </head>
 
@@ -1143,7 +1236,7 @@
   <nav id="nav">
     <a href="#" class="nav-logo"><img src="images/kalpesh_transparent1.png" alt="Kalpesh enterprises"
         style="height: 50px;"></a>
-    <ul class="nav-links">
+    <ul class="nav-links" id="navLinks">
       <li><a href="#products">Products</a></li>
       <li><a href="#hotel">Hotel Supply</a></li>
       <li><a href="#sustainability">Sustainability</a></li>
@@ -1152,6 +1245,13 @@
     <div class="nav-right">
       <a href="#hotel" class="nav-hotel">Hotel enquiry</a>
       <a href="#products" class="nav-cta">Shop now</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
     </div>
   </nav>
 
@@ -1838,14 +1938,14 @@
         <input type="hidden" name="_subject" value="New Contact Form Submission - Kalpesh Enterprises">
         <input type="hidden" name="_next" value="#">
 
-        <div style="display: flex; gap: 20px;">
+        <div class="form-row">
           <input class="email-input" type="text" name="name" placeholder="Your Name" required
             style="flex: 1; padding: 13px 18px; border: 1px solid var(--border); border-radius: 20px;">
           <input class="email-input" type="email" name="email" placeholder="Your Email" required
             style="flex: 1; padding: 13px 18px; border: 1px solid var(--border); border-radius: 20px;">
         </div>
 
-        <div style="display: flex; gap: 20px;">
+        <div class="form-row">
           <input class="email-input" type="tel" name="phone" placeholder="Contact Number" required
             style="flex: 1; padding: 13px 18px; border: 1px solid var(--border); border-radius: 20px;">
           <input class="email-input" type="text" name="company" placeholder="Hotel / Company Name"
@@ -1921,17 +2021,34 @@
       });
     });
 
-    // EMAIL
-    document.querySelector('.email-btn').addEventListener('click', function () {
-      const inp = document.querySelector('.email-input');
-      if (inp.value.includes('@')) {
-        this.textContent = "You're in! 🌿"; this.style.background = '#8FA68A'; inp.value = '';
-        setTimeout(() => { this.textContent = 'Get 15% off'; this.style.background = ''; }, 2500);
-      } else {
-        inp.style.borderColor = '#E8C4B0'; inp.focus();
-        setTimeout(() => inp.style.borderColor = '', 1500);
-      }
-    });
+    // NAV mobile toggle
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+      });
+      navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          navLinks.classList.remove('active');
+        });
+      });
+    }
+
+    // EMAIL (Optional subscription check)
+    const emailBtn = document.querySelector('.email-btn');
+    if (emailBtn) {
+      emailBtn.addEventListener('click', function () {
+        const inp = document.querySelector('.email-input');
+        if (inp.value.includes('@')) {
+          this.textContent = "You're in! 🌿"; this.style.background = '#8FA68A'; inp.value = '';
+          setTimeout(() => { this.textContent = 'Get 15% off'; this.style.background = ''; }, 2500);
+        } else {
+          inp.style.borderColor = '#E8C4B0'; inp.focus();
+          setTimeout(() => inp.style.borderColor = '', 1500);
+        }
+      });
+    }
   </script>
 </body>
 
